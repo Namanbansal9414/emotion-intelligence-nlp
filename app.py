@@ -82,6 +82,13 @@ import streamlit as st
 import pandas as pd
 from nltk.corpus import stopwords
 
+import nltk
+
+try:
+    nltk.data.find('corpora/stopwords')
+except LookupError:
+    nltk.download('stopwords')
+
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
     page_title="Emotion Intelligence",
@@ -200,8 +207,13 @@ def remove_stopword(txt):
     return ' '.join([i for i in words if i not in stop_words])
 
 # ---------------- LOAD MODEL ----------------
-bow = pickle.load(open('vectorizer.pkl', 'rb'))
-model = pickle.load(open('model.pkl', 'rb'))
+@st.cache_resource
+def load_model():
+    bow = pickle.load(open('vectorizer.pkl', 'rb'))
+    model = pickle.load(open('model.pkl', 'rb'))
+    return bow, model
+
+bow, model = load_model()
 
 emotion_labels = {
     0: "Sadness",
